@@ -9,10 +9,6 @@ public class ValueOutOfRangeException extends RuntimeException {
     super(message, cause);
   }
 
-  public ValueOutOfRangeException(final Throwable cause) {
-    super(cause);
-  }
-
   protected ValueOutOfRangeException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }

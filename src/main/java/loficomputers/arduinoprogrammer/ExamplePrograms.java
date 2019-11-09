@@ -2,24 +2,33 @@ package loficomputers.arduinoprogrammer;
 
 import loficomputers.arduinoprogrammer.compiler.Compiler;
 import loficomputers.arduinoprogrammer.compiler.Program;
-import loficomputers.arduinoprogrammer.programmers.ArduinoProgrammer;
+import loficomputers.arduinoprogrammer.emulator.Emulator;
+import loficomputers.arduinoprogrammer.programmers.EmulatorProgrammer;
 import loficomputers.arduinoprogrammer.programmers.Programmer;
 
 public final class ExamplePrograms {
   private ExamplePrograms() { }
 
   public static void main(final String[] args) {
-    final Program count = Compiler.compile(ExamplePrograms::count);
+    final Emulator emulator = new Emulator(100);
+    final Program count = Compiler.compile(ExamplePrograms::countFast);
 
-    try(final Programmer programmer = new ArduinoProgrammer("COM3")) {
+    try(final Programmer programmer = new EmulatorProgrammer(emulator)) {
       programmer.program(count);
     } catch(final Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
+
+    final long t1 = System.nanoTime();
+    System.out.println("Starting emulator");
+
+    emulator.run();
+
+    System.out.println("Emulator finished in " + (System.nanoTime() - t1) / 1000000000.0d + " seconds");
   }
 
-  private static void count(final Compiler programmer) {
-    programmer
+  private static void count(final Compiler compiler) {
+    compiler
       .mark("loop")                   // Mark the start of the loop
       .set(Instruction.LDA, "varA")   // Load variable "varA" into register A
       .set(Instruction.OUTA)          // Output the value
@@ -36,8 +45,23 @@ public final class ExamplePrograms {
     ;
   }
 
-  private static void fibonacci(final Compiler programmer) {
-    programmer
+  private static void countFast(final Compiler compiler) {
+    compiler
+      .set(Instruction.LDAC, 0)      // Load 0 into A
+      .set(Instruction.LDBC, 1)      // Load 1 into B
+      .mark("loop")
+      .set(Instruction.OUTA)         // Output A
+      .set(Instruction.ADDI)         // Add B to A
+      .set(Instruction.JC, "exit")   // Jump on overflow
+      .set(Instruction.JMP, "loop")  // Jump back to start of loop
+
+      .mark("exit")
+      .set(Instruction.HLT)          // Halt
+    ;
+  }
+
+  private static void fibonacci(final Compiler compiler) {
+    compiler
       .set(Instruction.LDA, "varA")       // Load and display the first two numbers
       .set(Instruction.OUTA)              //
       .set(Instruction.LDA, "varB")       //

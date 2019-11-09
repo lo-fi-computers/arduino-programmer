@@ -58,4 +58,14 @@ public enum Instruction {
   Instruction(final int opcode) {
     this.opcode = opcode;
   }
+
+  public static Instruction get(final int opcode) {
+    for(final Instruction instruction : Instruction.values()) {
+      if(opcode == instruction.opcode) {
+        return instruction;
+      }
+    }
+
+    throw new UnknownInstructionException("No instruction was found with the opcode " + Integer.toString(opcode, 2));
+  }
 }

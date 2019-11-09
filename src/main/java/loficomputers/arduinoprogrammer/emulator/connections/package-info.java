@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package loficomputers.arduinoprogrammer.emulator.connections;
+
+import javax.annotation.ParametersAreNonnullByDefault;
